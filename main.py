@@ -147,9 +147,9 @@ def run():
     runs_dir = './runs'
     tests.test_for_kitti_dataset(data_dir)
 
-    number_of_epochs = 2
+    number_of_epochs = 25
     learning_rate = 0.001
-    batch_size = 17
+    batch_size = 9
 
     # Download pretrained vgg model
     helper.maybe_download_pretrained_vgg(data_dir)
@@ -158,9 +158,7 @@ def run():
     # You'll need a GPU with at least 10 teraFLOPS to train on.
     #  https://www.cityscapes-dataset.com/
 
-    config = tf.ConfigProto(device_count={'GPU': 0})
-
-    with tf.Session(config=config) as sess:
+    with tf.Session() as sess:
         # Path to vgg model
         vgg_path = os.path.join(data_dir, 'vgg')
         # Create function to get batches
