@@ -121,15 +121,22 @@ def train_nn(sess, epochs, batch_size, get_batches_fn, train_op, cross_entropy_l
     :param learning_rate: TF Placeholder for learning rate
     """
 
+    def evaluate():
+        total_loss = 0
+        for (images, labels) in get_batches_fn(batch_size):
+            loss = sess.run(cross_entropy_loss,
+                            feed_dict={input_image: images, correct_label: labels, keep_prob: 1.0})
+            total_loss += loss
+        return total_loss
+
     for i in range(epochs):
         print("EPOCH {} ...".format(i+1))
         for (images, labels) in get_batches_fn(batch_size):
             sess.run(train_op,
                 feed_dict={input_image: images, correct_label: labels, keep_prob: 1.0})
             print("batch done...")
-            #loss = sess.run(cross_entropy_loss,
-            #    feed_dict={input_image: images, correct_label: labels, keep_prob: 1.0})
-            #print("Training Loss = {:.3f}".format(loss))
+
+        print("Training Loss = {:.3f}".format(evaluate()))
 
 tests.test_train_nn(train_nn)
 
@@ -140,7 +147,7 @@ def run():
     runs_dir = './runs'
     tests.test_for_kitti_dataset(data_dir)
 
-    number_of_epochs = 1
+    number_of_epochs = 2
     learning_rate = 0.001
     batch_size = 17
 
@@ -176,7 +183,10 @@ def run():
                  input_image, correct_label, keep_prob, learning_rate)
 
         # Save inference data using helper.save_inference_samples
-        helper.save_inference_samples(runs_dir, data_dir, sess, image_shape, logits, keep_prob, input_image)
+        helper.save_inference_samples(
+            runs_dir+'_train', data_dir, 'training', sess, image_shape, logits, keep_prob, input_image)
+        helper.save_inference_samples(
+            runs_dir, data_dir, 'testing', sess, image_shape, logits, keep_prob, input_image)
 
         # OPTIONAL: Apply the trained model to a video
 
